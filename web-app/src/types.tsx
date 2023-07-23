@@ -51,6 +51,7 @@ export enum Source {
 
 export enum Type {
 	A = 'A',
+	AAAA = 'AAAA',
 	CNAME = 'CNAME',
 	MX = 'MX',
 	SRV = 'SRV',

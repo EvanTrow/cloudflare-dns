@@ -94,3 +94,53 @@ export const useDeleteDomainRecord = (domain: Domain) => {
 		}
 	);
 };
+
+export const validRecord = (record: Record) => {
+	const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+	const ipv6Regex =
+		/^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+
+	try {
+		switch (record.type) {
+			case Type.A:
+				if (record.name.length > 0 && ipv4Regex.test(record.content)) {
+					return true;
+				} else return false;
+			case Type.AAAA:
+				if (record.name.length > 0 && ipv6Regex.test(record.content)) {
+					return true;
+				} else return false;
+			case Type.CNAME:
+				if (record.name.length > 0 && record.content.length > 0) {
+					return true;
+				} else return false;
+			case Type.MX:
+				if (record.name.length > 0 && record.content.length > 0 && record.priority! >= 0 && record.priority! <= 65535) {
+					return true;
+				} else return false;
+			case Type.SRV:
+				if (
+					record.name!.length > 0 &&
+					record.data!.service!.length > 0 &&
+					record.data!.proto!.length > 0 &&
+					record.priority! >= 0 &&
+					record.priority! <= 65535 &&
+					record.data!.weight! >= 0 &&
+					record.data!.weight! <= 65535 &&
+					record.data!.port! >= 0 &&
+					record.data!.port! <= 65535 &&
+					record.data!.target!.length > 0
+				) {
+					return true;
+				} else return false;
+			case Type.TXT:
+				if (record.name.length > 0 && record.content.length > 0) {
+					return true;
+				} else return false;
+			default:
+				return false;
+		}
+	} catch (error) {
+		return false;
+	}
+};

@@ -32,7 +32,7 @@ import {
 import { Add, Cloud, CloudOff, Delete, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 
-import { useCreateDomainRecord, useDeleteDomainRecord, useGetDomainRecords, useUpdateDomainRecord } from '../lib';
+import { useCreateDomainRecord, useDeleteDomainRecord, useGetDomainRecords, useUpdateDomainRecord, validRecord } from '../lib';
 import { Domain, Record, Type } from '../types';
 
 import RecordForm from '../components/RecordForm';
@@ -126,7 +126,7 @@ function RecordRow({ domain, record: origRecord }: RecordRowProps) {
 										<Button variant='contained' color='inherit' onClick={() => setOpen(!open)}>
 											Cancel
 										</Button>
-										<LoadingButton variant='contained' color='primary' onClick={() => handleUpdate()} loading={updateDomainRecord.isLoading}>
+										<LoadingButton variant='contained' color='primary' onClick={() => handleUpdate()} loading={updateDomainRecord.isLoading} disabled={!validRecord(record)}>
 											Save
 										</LoadingButton>
 									</Stack>
@@ -277,7 +277,7 @@ export default function DomainRecords({ domain }: DomainRecordsProps) {
 										<Button variant='contained' color='inherit' onClick={() => setNewRecordOpen(!newRecordOpen)}>
 											Cancel
 										</Button>
-										<LoadingButton variant='contained' color='primary' onClick={() => handleCreate()} loading={createDomainRecord.isLoading}>
+										<LoadingButton variant='contained' color='primary' onClick={() => handleCreate()} loading={createDomainRecord.isLoading} disabled={!validRecord(record)}>
 											Save
 										</LoadingButton>
 									</Stack>

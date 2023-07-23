@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "ts-node index.ts",
 		"dev": "concurrently \"nodemon index.ts\" \"cd web-app && npm start\"",
-		"build": "cd web-app && npm run build && cd .. && docker build -t evantrow/cloudflare-dns ."
+		"build": "cd web-app && npm run build && cd .. && docker build -t evantrow/cloudflare-dns . --no-cache",
+		"publish": "docker push evantrow/cloudflare-dns"
 	},
 	"repository": {
 		"type": "git",

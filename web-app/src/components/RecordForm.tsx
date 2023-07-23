@@ -67,7 +67,8 @@ export default function RecordForm({ domain, record, onChange }: RecordFormProps
 			ttl: ttl,
 			comment: comment,
 		});
-	}, [onChange, record, type, name, content, priority, proxied, service, proto, weight, port, target, ttl, comment]);
+		// eslint-disable-next-line
+	}, [type, name, content, priority, proxied, service, proto, weight, port, target, ttl, comment]);
 
 	return (
 		<>
@@ -79,6 +80,7 @@ export default function RecordForm({ domain, record, onChange }: RecordFormProps
 								<InputLabel>Type</InputLabel>
 								<Select label='Type' value={type} onChange={(e) => setType(e.target.value as Type)}>
 									<MenuItem value={Type.A}>A</MenuItem>
+									<MenuItem value={Type.AAAA}>AAAA</MenuItem>
 									<MenuItem value={Type.CNAME}>CNAME</MenuItem>
 									<MenuItem value={Type.MX}>MX</MenuItem>
 									<MenuItem value={Type.SRV}>SRV</MenuItem>
@@ -97,6 +99,7 @@ export default function RecordForm({ domain, record, onChange }: RecordFormProps
 									label={
 										{
 											[Type.A]: 'IPv4 Address',
+											[Type.AAAA]: 'IPv6 Address',
 											[Type.CNAME]: 'Target',
 											[Type.MX]: 'Mail Server',
 											[Type.TXT]: 'Content',

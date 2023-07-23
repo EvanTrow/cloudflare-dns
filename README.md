@@ -5,7 +5,6 @@ Uses [Cloudflare](https://developers.cloudflare.com/api) API to manage DNS recor
 <!-- ![Screenshot 1](./docs/screenshot1.png 'Screenshot') -->
 <img src="./docs/screenshot01.png" alt="Screenshot" width="850px" style="margin-left: 24px"/>
 
-
 # Features
 
 ## Import & Manage Domain Zones
@@ -21,6 +20,7 @@ Uses [Cloudflare](https://developers.cloudflare.com/api) API to manage DNS recor
 Supported Record Types:
 
 -   A
+-   AAAA
 -   CNAME
 -   MX
 -   SRV
