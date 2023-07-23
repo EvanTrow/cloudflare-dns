@@ -1,6 +1,6 @@
 export type Domain = {
-	domain: string;
 	zoneID: string;
+	name: string;
 	apiToken: string;
 
 	// Metadata
@@ -16,7 +16,7 @@ export interface Record {
 	type: Type;
 	content: string;
 	proxiable?: boolean;
-	proxied: boolean;
+	proxied?: boolean;
 	ttl: number;
 	locked?: boolean;
 	meta?: Meta;
@@ -29,13 +29,13 @@ export interface Record {
 }
 
 export interface Data {
-	name: string;
-	port: number;
-	priority: number;
-	proto: string;
-	service: string;
-	target: string;
-	weight: number;
+	name?: string;
+	port?: number;
+	priority?: number;
+	proto?: Proto;
+	service?: string;
+	target?: string;
+	weight?: number;
 }
 
 export interface Meta {
@@ -51,8 +51,14 @@ export enum Source {
 
 export enum Type {
 	A = 'A',
-	Cname = 'CNAME',
+	CNAME = 'CNAME',
 	MX = 'MX',
-	Srv = 'SRV',
-	Txt = 'TXT',
+	SRV = 'SRV',
+	TXT = 'TXT',
+}
+
+export enum Proto {
+	TCP = '_tcp',
+	UDP = '_udp',
+	TLS = '_tls',
 }

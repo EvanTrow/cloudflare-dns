@@ -1,13 +1,33 @@
 import * as React from 'react';
-import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { Link, useLocation } from 'react-router-dom';
 
 import { styled, Theme } from '@mui/material/styles';
-import { AppBar, Avatar, Box, CSSObject, Divider, Drawer as MuiDrawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import { Menu as MenuIcon, Add, Public, Dns, Lan } from '@mui/icons-material';
+import {
+	AppBar,
+	Box,
+	CSSObject,
+	Divider,
+	Drawer as MuiDrawer,
+	IconButton,
+	List,
+	ListItem,
+	ListItemButton,
+	ListItemIcon,
+	ListItemText,
+	Toolbar,
+	Typography,
+	Stack,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+} from '@mui/material';
+import { Menu as MenuIcon, Lan, Settings } from '@mui/icons-material';
 
 import { useGetDomains } from '../lib';
 import AddDomain from './AddDomain';
+import DomainMenu from './DomainMenu';
 
 const drawerWidth = 240;
 
@@ -50,71 +70,96 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop: string) => prop !==
 const Navigation: React.FC<{ children: JSX.Element }> = ({ children }) => {
 	const location = useLocation();
 	const [drawerOpen, setDrawerOpen] = React.useState(true);
-	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-	const { data: domains, isLoading } = useGetDomains();
+	const [open, setOpen] = React.useState(false);
+
+	const { data: domains } = useGetDomains();
 
 	return (
-		<Box sx={{ display: 'flex' }}>
-			<AppBar position='fixed' color='primary' enableColorOnDark sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-				<Toolbar>
-					<IconButton color='inherit' aria-label='open drawer' onClick={() => setDrawerOpen(!drawerOpen)} edge='start' sx={{ mr: 2 }}>
-						<MenuIcon />
-					</IconButton>
+		<>
+			<Box sx={{ display: 'flex' }}>
+				<AppBar position='fixed' color='primary' enableColorOnDark sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+					<Toolbar>
+						<IconButton color='inherit' aria-label='open drawer' onClick={() => setDrawerOpen(!drawerOpen)} edge='start' sx={{ mr: 2 }}>
+							<MenuIcon />
+						</IconButton>
 
-					<Typography
-						variant='h6'
-						noWrap
-						component={Link}
-						to='/'
-						sx={{
-							flexGrow: 1,
-							color: 'inherit',
-							textDecoration: 'none',
-						}}
-					>
-						Cloudflare DNS
-					</Typography>
-				</Toolbar>
-			</AppBar>
-			<Drawer variant='permanent' open={drawerOpen}>
-				<Toolbar />
-				<Box>
+						<Typography
+							variant='h6'
+							noWrap
+							component={Link}
+							to='/'
+							sx={{
+								flexGrow: 1,
+								color: 'inherit',
+								textDecoration: 'none',
+							}}
+						>
+							Cloudflare DNS
+						</Typography>
+
+						<Box sx={{ flexGrow: 0 }}>
+							<Stack direction='row' spacing={2}>
+								<IconButton color='inherit' size='large' onClick={() => setOpen(true)}>
+									<Settings />
+								</IconButton>
+							</Stack>
+						</Box>
+					</Toolbar>
+				</AppBar>
+				<Drawer variant='permanent' open={drawerOpen}>
+					<Toolbar />
+					<Box>
+						<List>
+							{domains
+								?.sort((a, b) => (a.name > b.name ? 1 : -1))
+								.map((domain, i) => (
+									<ListItem key={i} disablePadding>
+										<ListItemButton component={Link} to={`/${domain.zoneID}`} selected={location.pathname.startsWith(`/${domain.zoneID}`)}>
+											<ListItemIcon>
+												<Lan />
+											</ListItemIcon>
+											<ListItemText primary={domain.name} />
+										</ListItemButton>
+									</ListItem>
+								))}
+						</List>
+						<Divider />
+						<AddDomain />
+					</Box>
+				</Drawer>
+				<Box component='main' sx={{ flexGrow: 1 }}>
+					<Toolbar />
+					<Box sx={{ mb: 4 }}>{children}</Box>
+				</Box>
+			</Box>
+
+			<Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth='xs'>
+				<DialogTitle>Manage Domains</DialogTitle>
+				<DialogContent>
 					<List>
 						{domains
-							?.sort((a, b) => (a.domain > b.domain ? 1 : -1))
+							?.sort((a, b) => (a.name > b.name ? 1 : -1))
 							.map((domain, i) => (
-								<ListItem key={i} disablePadding>
-									<ListItemButton component={Link} to={`/${domain.zoneID}`} selected={location.pathname.startsWith(`/${domain.zoneID}`)}>
-										<ListItemIcon>
-											<Lan />
-										</ListItemIcon>
-										<ListItemText primary={domain.domain} />
-									</ListItemButton>
+								<ListItem key={i} secondaryAction={<DomainMenu domain={domain} />}>
+									<ListItemIcon>
+										<Lan />
+									</ListItemIcon>
+									<ListItemText primary={domain.name} />
 								</ListItem>
 							))}
 					</List>
 					<Divider />
 					<AddDomain />
-				</Box>
-			</Drawer>
-			<Box component='main' sx={{ flexGrow: 1 }}>
-				<Toolbar />
-				<Box sx={{ mb: 4 }}>{children}</Box>
-			</Box>
-		</Box>
+				</DialogContent>
+				<DialogActions>
+					<Button color='inherit' onClick={() => setOpen(false)}>
+						Close
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</>
 	);
 };
 
 export default Navigation;
-
-function getLocation(path: string) {
-	if (path.startsWith('/list')) {
-		return 1;
-	} else if (path.startsWith('/group')) {
-		return 2;
-	} else if (path.startsWith('/shopping')) {
-		return 3;
-	}
-	return 0;
-}

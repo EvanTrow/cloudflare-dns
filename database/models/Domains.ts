@@ -4,8 +4,8 @@ import { CreationOptional, DataTypes, InferCreationAttributes, Model } from 'seq
 import sequelize from '../db';
 
 export default class Domains extends Model<Domain, InferCreationAttributes<Domains>> {
-	declare domain: string;
 	declare zoneID: string;
+	declare name: string;
 	declare apiToken: string;
 
 	declare createdAt: CreationOptional<Date>;
@@ -20,7 +20,7 @@ Domains.init(
 			allowNull: false,
 			primaryKey: true,
 		},
-		domain: {
+		name: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
