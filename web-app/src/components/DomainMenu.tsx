@@ -81,8 +81,6 @@ export default function DomainMenu({ domain }: DomainMenuProps) {
 			</IconButton>
 
 			<Menu
-				id='demo-positioned-menu'
-				aria-labelledby='demo-positioned-button'
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}

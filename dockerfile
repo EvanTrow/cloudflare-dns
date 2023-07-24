@@ -17,6 +17,8 @@ RUN npm install ts-node -g
 # Expose ports
 EXPOSE 8080
 
+ENV PUBLIC_IP_POLL_RATE_SEC=90
+
 CMD [ "npm", "start" ]
 
 VOLUME '/db'

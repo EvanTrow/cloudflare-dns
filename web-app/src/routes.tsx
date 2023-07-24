@@ -6,6 +6,7 @@ import { useGetDomains } from './lib/useDomains';
 
 import Navigation from './components/Navigation';
 import DomainRecords from './pages/DomainRecords';
+import DDNSManagement from './pages/DDNSManagement';
 
 function AppRoutes() {
 	const { data: domains, isLoading } = useGetDomains();
@@ -31,6 +32,8 @@ function AppRoutes() {
 						{domains?.map((domain, i) => (
 							<Route key={domain.zoneID} path={`/${domain.zoneID}`} element={<DomainRecords domain={domain} />} />
 						))}
+
+						<Route path='/ddns' element={<DDNSManagement />} />
 
 						<Route
 							path='*'

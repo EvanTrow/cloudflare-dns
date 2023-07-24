@@ -9,17 +9,22 @@ const QUERY_KEY = ['dns_records'];
 
 export const useGetDomainRecords = (domain: Domain) => {
 	const { enqueueSnackbar } = useSnackbar();
-
 	return useQuery({
-		queryKey: [...QUERY_KEY, domain.zoneID],
+		queryKey: [...QUERY_KEY, domain?.zoneID],
 		queryFn: async (): Promise<Record[]> => {
-			var res = await axios.get(`/api/zones/${domain.zoneID}/dns_records`);
+			if (domain) {
+				var res = await axios.get(`/api/zones/${domain.zoneID}/dns_records`);
 
-			return res.data as Record[];
+				return res.data as Record[];
+			} else {
+				return [];
+			}
 		},
 		onError(err) {
 			console.log(err);
-			enqueueSnackbar(`Failed to get domain records (${(err as any).response.status}): ${((err as any).response.data.errors as any[]).map((e) => e.message).join(', ')}`, { variant: 'error' });
+			enqueueSnackbar(`Failed to get domain records (${(err as any).response.status}): ${((err as any).response.data.errors as any[]).map((e) => e.message).join(', ')}`, {
+				variant: 'error',
+			});
 		},
 	});
 };

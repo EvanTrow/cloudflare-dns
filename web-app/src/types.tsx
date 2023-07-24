@@ -63,3 +63,43 @@ export enum Proto {
 	UDP = '_udp',
 	TLS = '_tls',
 }
+
+export type DDNS = {
+	id: number;
+	zoneID: string;
+	recordID: string;
+
+	// Metadata
+	createdAt?: Date;
+	updatedAt?: Date;
+};
+
+export type DDNSResult = {
+	id: number;
+	domain: Domain;
+	recordID: string;
+	name: string;
+	content: string;
+
+	modified_on: Date;
+};
+
+export type Settings = {
+	id: number;
+	ddnsTrigger: DDNSTrigger;
+	ddnsSchedule?: DDNSSchedule;
+	// Metadata
+	createdAt?: Date;
+	updatedAt?: Date;
+};
+
+export enum DDNSTrigger {
+	PublicIP = 'PublicIP',
+	Schedule = 'Schedule',
+}
+
+export enum DDNSSchedule {
+	HOURLY = '0 * * * *',
+	DAILY = '0 1 * * *',
+	WEEKLY = '0 1 * * 0',
+}

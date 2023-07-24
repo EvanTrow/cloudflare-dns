@@ -1,29 +1,29 @@
-import { Domain } from '../../web-app/src/types';
+import { Settings as SettingsType } from '../../web-app/src/types';
 import { CreationOptional, DataTypes, InferCreationAttributes, Model } from 'sequelize';
 
 import sequelize from '../db';
 
-export default class Domains extends Model<Domain, InferCreationAttributes<Domains>> {
-	declare zoneID: string;
-	declare name: string;
-	declare apiToken: string;
+export default class Settings extends Model<SettingsType, InferCreationAttributes<Settings>> {
+	declare id: number;
+	declare ddnsTrigger: string;
+	declare ddnsSchedule: string;
 
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
 }
 
-Domains.init(
+Settings.init(
 	{
-		zoneID: {
-			type: DataTypes.STRING,
-			allowNull: false,
+		id: {
+			type: DataTypes.NUMBER,
 			primaryKey: true,
+			allowNull: false,
 		},
-		name: {
+		ddnsTrigger: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		apiToken: {
+		ddnsSchedule: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
@@ -32,7 +32,7 @@ Domains.init(
 		updatedAt: DataTypes.DATE,
 	},
 	{
-		tableName: 'domains',
+		tableName: 'settings',
 		sequelize, // passing the `sequelize` instance is required
 	}
 );

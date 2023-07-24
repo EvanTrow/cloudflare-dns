@@ -22,12 +22,23 @@ import {
 	DialogActions,
 	DialogContent,
 	DialogTitle,
+	Accordion,
+	AccordionDetails,
+	AccordionSummary,
+	Grid,
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
+	LinearProgress,
 } from '@mui/material';
-import { Menu as MenuIcon, Lan, Settings } from '@mui/icons-material';
+import { Menu as MenuIcon, Lan, Settings as SettingsIcon, DynamicForm, ExpandMore } from '@mui/icons-material';
 
-import { useGetDomains } from '../lib';
+import { useGetDomains, useGetSettings, useUpdateSettings } from '../lib';
 import AddDomain from './AddDomain';
 import DomainMenu from './DomainMenu';
+import { DDNSSchedule, DDNSTrigger, Settings } from '../types';
+import { useSnackbar } from 'notistack';
 
 const drawerWidth = 240;
 
@@ -69,11 +80,35 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop: string) => prop !==
 
 const Navigation: React.FC<{ children: JSX.Element }> = ({ children }) => {
 	const location = useLocation();
+	const { enqueueSnackbar } = useSnackbar();
+
 	const [drawerOpen, setDrawerOpen] = React.useState(true);
 
 	const [open, setOpen] = React.useState(false);
+	const [expanded, setExpanded] = React.useState<string | false>('domains');
 
+	const { data: settings, isLoading: settingsLoading } = useGetSettings();
 	const { data: domains } = useGetDomains();
+
+	const handleClose = () => {
+		setOpen(false);
+		setExpanded('domains');
+	};
+
+	const handleRxpandedChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+		setExpanded(isExpanded ? panel : false);
+	};
+
+	const updateSettings = useUpdateSettings();
+	const handleUpdateSettings = (settings: Omit<Settings, 'id'>) => {
+		updateSettings
+			.mutateAsync(settings)
+
+			.catch((err) => {
+				console.log(err);
+				enqueueSnackbar(`Failed to update settings (${err.response.status}): ${(err.response.data.errors as any[]).map((e) => e.message).join(', ')}`, { variant: 'error' });
+			});
+	};
 
 	return (
 		<>
@@ -101,7 +136,7 @@ const Navigation: React.FC<{ children: JSX.Element }> = ({ children }) => {
 						<Box sx={{ flexGrow: 0 }}>
 							<Stack direction='row' spacing={2}>
 								<IconButton color='inherit' size='large' onClick={() => setOpen(true)}>
-									<Settings />
+									<SettingsIcon />
 								</IconButton>
 							</Stack>
 						</Box>
@@ -126,6 +161,22 @@ const Navigation: React.FC<{ children: JSX.Element }> = ({ children }) => {
 						</List>
 						<Divider />
 						<AddDomain />
+
+						{domains?.length !== 0 && (
+							<>
+								<Divider />
+								<List>
+									<ListItem disablePadding>
+										<ListItemButton component={Link} to={`/ddns`} selected={location.pathname === '/ddns'}>
+											<ListItemIcon>
+												<DynamicForm />
+											</ListItemIcon>
+											<ListItemText primary='Dynamic DNS' />
+										</ListItemButton>
+									</ListItem>
+								</List>
+							</>
+						)}
 					</Box>
 				</Drawer>
 				<Box component='main' sx={{ flexGrow: 1 }}>
@@ -134,26 +185,83 @@ const Navigation: React.FC<{ children: JSX.Element }> = ({ children }) => {
 				</Box>
 			</Box>
 
-			<Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth='xs'>
-				<DialogTitle>Manage Domains</DialogTitle>
+			<Dialog open={open} onClose={handleClose} fullWidth maxWidth='sm'>
+				<DialogTitle>Settings</DialogTitle>
 				<DialogContent>
-					<List>
-						{domains
-							?.sort((a, b) => (a.name > b.name ? 1 : -1))
-							.map((domain, i) => (
-								<ListItem key={i} secondaryAction={<DomainMenu domain={domain} />}>
-									<ListItemIcon>
-										<Lan />
-									</ListItemIcon>
-									<ListItemText primary={domain.name} />
-								</ListItem>
-							))}
-					</List>
-					<Divider />
-					<AddDomain />
+					<Accordion expanded={expanded === 'domains'} onChange={handleRxpandedChange('domains')}>
+						<AccordionSummary expandIcon={<ExpandMore />}>
+							<Typography>Domains</Typography>
+						</AccordionSummary>
+						<AccordionDetails>
+							<List>
+								{domains
+									?.sort((a, b) => (a.name > b.name ? 1 : -1))
+									.map((domain, i) => (
+										<ListItem key={i} secondaryAction={<DomainMenu domain={domain} />}>
+											<ListItemIcon>
+												<Lan />
+											</ListItemIcon>
+											<ListItemText primary={domain.name} />
+										</ListItem>
+									))}
+							</List>
+							<Divider />
+							<AddDomain />
+						</AccordionDetails>
+					</Accordion>
+
+					{domains?.length !== 0 && (
+						<>
+							<Accordion expanded={expanded === 'ddns'} onChange={handleRxpandedChange('ddns')}>
+								<AccordionSummary expandIcon={<ExpandMore />}>
+									<Typography>Dynamic DNS</Typography>
+								</AccordionSummary>
+								<AccordionDetails>
+									<Grid container spacing={2}>
+										<Grid item xs={12}>
+											<FormControl fullWidth disabled={settingsLoading || updateSettings.isLoading}>
+												<InputLabel>Trigger</InputLabel>
+												<Select
+													value={settings?.ddnsTrigger}
+													label='Trigger'
+													onChange={(e) => {
+														handleUpdateSettings({ ...settings!, ddnsTrigger: e.target.value as DDNSTrigger });
+													}}
+												>
+													<MenuItem value={DDNSTrigger.PublicIP}>Public IP Change</MenuItem>
+													<MenuItem value={DDNSTrigger.Schedule}>Schedule</MenuItem>
+												</Select>
+											</FormControl>
+										</Grid>
+										{settings?.ddnsTrigger === DDNSTrigger.Schedule && (
+											<Grid item xs={12}>
+												<FormControl fullWidth disabled={settingsLoading || updateSettings.isLoading}>
+													<InputLabel>Schedule</InputLabel>
+													<Select
+														value={settings?.ddnsSchedule}
+														label='Schedule'
+														onChange={(e) => {
+															handleUpdateSettings({ ...settings!, ddnsSchedule: e.target.value as DDNSSchedule });
+														}}
+													>
+														<MenuItem value={DDNSSchedule.HOURLY}>Hourly</MenuItem>
+														<MenuItem value={DDNSSchedule.DAILY}>Daily</MenuItem>
+														<MenuItem value={DDNSSchedule.WEEKLY}>Weekly</MenuItem>
+													</Select>
+												</FormControl>
+											</Grid>
+										)}
+										<Grid item xs={12}>
+											<Box sx={{ width: '100%' }}>{settingsLoading || (updateSettings.isLoading && <LinearProgress />)}</Box>
+										</Grid>
+									</Grid>
+								</AccordionDetails>
+							</Accordion>
+						</>
+					)}
 				</DialogContent>
 				<DialogActions>
-					<Button color='inherit' onClick={() => setOpen(false)}>
+					<Button color='inherit' onClick={handleClose}>
 						Close
 					</Button>
 				</DialogActions>
