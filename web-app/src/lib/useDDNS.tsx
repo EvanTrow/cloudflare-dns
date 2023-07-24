@@ -5,13 +5,13 @@ import { useSnackbar } from 'notistack';
 
 import { DDNSResult } from '../types';
 
-const QUERY_KEY = ['ddns'];
+export const DDNS_QUERY_KEY = ['ddns'];
 
 export const useGetDDNS = () => {
 	const { enqueueSnackbar } = useSnackbar();
 
 	return useQuery({
-		queryKey: QUERY_KEY,
+		queryKey: DDNS_QUERY_KEY,
 		queryFn: async (): Promise<DDNSResult[]> => {
 			var res = await axios.get('/api/ddns');
 
@@ -35,7 +35,7 @@ export const useCreateDDNS = () => {
 		},
 		{
 			onSuccess: (ddns: DDNSResult) => {
-				queryClient.setQueryData(QUERY_KEY, (prevDdns: DDNSResult[] | undefined) => {
+				queryClient.setQueryData(DDNS_QUERY_KEY, (prevDdns: DDNSResult[] | undefined) => {
 					if (prevDdns) {
 						if (prevDdns.find((d) => d.recordID === ddns.recordID && d.domain.zoneID === ddns.domain.zoneID)) {
 							return [...prevDdns];
@@ -62,7 +62,7 @@ export const useDeleteDDNS = () => {
 		},
 		{
 			onSuccess: (id) => {
-				queryClient.setQueryData(QUERY_KEY, (prevDdns: DDNSResult[] | undefined) => (prevDdns ? prevDdns.filter((d) => d.id !== id) : prevDdns));
+				queryClient.setQueryData(DDNS_QUERY_KEY, (prevDdns: DDNSResult[] | undefined) => (prevDdns ? prevDdns.filter((d) => d.id !== id) : prevDdns));
 			},
 		}
 	);

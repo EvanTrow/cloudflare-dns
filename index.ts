@@ -237,6 +237,12 @@ app.delete('/api/zones/:zoneID', async (req, res) => {
 			return;
 		}
 
+		await DDNSs.destroy({
+			where: {
+				zoneID: req.params.zoneID,
+			},
+		});
+
 		await Domains.destroy({
 			where: {
 				zoneID: req.params.zoneID,
@@ -338,6 +344,13 @@ app.delete('/api/zones/:zoneID/dns_records/:recordID', async (req, res) => {
 			return;
 		}
 
+		await DDNSs.destroy({
+			where: {
+				zoneID: domain.zoneID,
+				recordID: req.params.recordID,
+			},
+		});
+
 		const recordRes = await axios.delete(`https://api.cloudflare.com/client/v4/zones/${domain.zoneID}/dns_records/${req.params.recordID}`, {
 			headers: {
 				Authorization: `Bearer ${domain.apiToken}`,
@@ -356,10 +369,12 @@ app.get('/api/ddns', async (req, res) => {
 	try {
 		const ddnss = await DDNSs.findAll();
 
+		let error = false;
 		const records = await Promise.all(
 			ddnss.map(async (ddns) => {
 				const domain = await Domains.findOne({ where: { zoneID: ddns.zoneID } });
 				if (!domain) {
+					error = true;
 					res.status(404);
 					res.send('Domain not found.');
 					return;
@@ -383,7 +398,7 @@ app.get('/api/ddns', async (req, res) => {
 			})
 		);
 
-		res.send(records);
+		if (!error) res.send(records);
 	} catch (error) {
 		console.log(error?.response?.data ?? error);
 		res.status(error.response.status);

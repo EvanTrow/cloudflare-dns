@@ -18,6 +18,7 @@ import {
 	Divider,
 	Grid,
 	IconButton,
+	Link,
 	Paper,
 	Stack,
 	Table,
@@ -85,7 +86,23 @@ function RecordRow({ domain, record: origRecord }: RecordRowProps) {
 				<TableCell component='th' scope='row'>
 					{origRecord.type}
 				</TableCell>
-				<TableCell>{origRecord.name.replace(`.${domain.name}`, '')}</TableCell>
+				<TableCell>
+					{[Type.A, Type.CNAME].includes(origRecord.type) ? (
+						<Link
+							href={`http://${origRecord.name}`}
+							underline='hover'
+							color='inherit'
+							target='_blank'
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
+						>
+							{origRecord.name.replace(`.${domain.name}`, '')}
+						</Link>
+					) : (
+						origRecord.name.replace(`.${domain.name}`, '')
+					)}
+				</TableCell>
 				<TableCell>
 					{origRecord.content}
 					{origRecord.priority ? (

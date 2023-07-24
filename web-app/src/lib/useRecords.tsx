@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 
-import { Domain, Record, Type } from '../types';
+import { DDNSResult, Domain, Record, Type } from '../types';
+import { DDNS_QUERY_KEY } from './useDDNS';
 
 const QUERY_KEY = ['dns_records'];
 
@@ -94,6 +95,10 @@ export const useDeleteDomainRecord = (domain: Domain) => {
 		},
 		{
 			onSuccess: (recordID) => {
+				// remove ddns records
+				queryClient.setQueryData(DDNS_QUERY_KEY, (prevDdns: DDNSResult[] | undefined) =>
+					prevDdns ? prevDdns.filter((ddns) => ddns.recordID !== recordID && ddns.domain.zoneID !== domain.zoneID) : prevDdns
+				);
 				queryClient.setQueryData([...QUERY_KEY, domain.zoneID], (prevRecords: Record[] | undefined) => (prevRecords ? prevRecords.filter((record) => record.id !== recordID) : prevRecords));
 			},
 		}

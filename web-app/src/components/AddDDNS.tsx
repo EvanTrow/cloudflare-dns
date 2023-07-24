@@ -50,7 +50,7 @@ export default function AddDDNS() {
 
 	return (
 		<>
-			<Fab color='primary' aria-label='download' sx={{ position: 'absolute', bottom: 16, right: 16 }} onClick={handleOpen}>
+			<Fab color='primary' aria-label='download' sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={handleOpen}>
 				<Add />
 			</Fab>
 

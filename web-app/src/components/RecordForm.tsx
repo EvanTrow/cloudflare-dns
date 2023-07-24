@@ -111,7 +111,7 @@ export default function RecordForm({ domain, record, onChange }: RecordFormProps
 								/>
 							</Grid>
 						)}
-						{type !== Type.MX && type !== Type.TXT && type !== Type.SRV && (
+						{![Type.MX, Type.TXT, Type.SRV].includes(type) && (
 							<Grid item>
 								<FormControlLabel
 									control={
@@ -175,7 +175,7 @@ export default function RecordForm({ domain, record, onChange }: RecordFormProps
 								</Select>
 							</FormControl>
 						</Grid>
-						{(type === Type.MX || type === Type.SRV) && (
+						{[Type.MX, Type.SRV].includes(type) && (
 							<Grid item>
 								<TextField
 									sx={{ width: 120 }}
